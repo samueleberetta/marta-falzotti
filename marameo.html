@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>marameo! ✨</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #F97316;
+    --secondary: #0EA5E9;
+    --accent: #84CC16;
+    --highlight: #FACC15;
+    --dark: #111827;
+    --light: #F8FAFC;
+    --pink: #F472B6;
+    --purple: #A78BFA;
+    --red: #EF4444;
+    --teal: #14B8A6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--light);
+    color: var(--dark);
+    overflow-x: hidden;
+  }
+
+  /* ── PAPER TEXTURE via SVG ── */
+  .paper-texture {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+
+  /* ══════════════════════ NAV ══════════════════════ */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    background: var(--dark);
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+
+  .nav-logo {
+    font-family: 'Caveat', cursive;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--highlight);
+    letter-spacing: 1px;
+    text-decoration: none;
+  }
+
+  .hamburger {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 8px;
+    border: none;
+    background: none;
+  }
+  .hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: white;
+    border-radius: 2px;
+    transition: all 0.3s;
+  }
+  .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  .nav-menu {
+    position: fixed;
+    top: 56px; left: 0; right: 0;
+    background: var(--dark);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transform: translateY(-120%);
+    transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+    z-index: 999;
+    border-bottom: 3px solid var(--primary);
+  }
+  .nav-menu.open { transform: translateY(0); }
+
+  .nav-link {
+    color: white;
+    text-decoration: none;
+    font-size: 1.3rem;
+    font-weight: 700;
+    font-family: 'Caveat', cursive;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    transition: background 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .nav-link:hover { background: var(--primary); color: white; }
+  .nav-link.active { color: var(--highlight); }
+
+  /* Desktop nav */
+  @media (min-width: 768px) {
+    .hamburger { display: none; }
+    .nav-menu {
+      position: static;
+      flex-direction: row;
+      transform: none;
+      padding: 0;
+      background: none;
+      border: none;
+      gap: 0.5rem;
+    }
+    .nav-link { font-size: 1.1rem; padding: 0.5rem 1rem; }
+  }
+
+  /* ══════════════════════ PAGES ══════════════════════ */
+  .page {
+    display: none;
+    min-height: 100vh;
+    padding-top: 56px;
+  }
+  .page.active { display: block; }
+
+  /* ══════════════════════ DECORATIVE ELEMENTS ══════════════════════ */
+
+  /* Confetti dots */
+  .confetti-bg {
+    position: relative;
+    overflow: hidden;
+  }
+  .confetti-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle, var(--primary) 2px, transparent 2px),
+      radial-gradient(circle, var(--secondary) 2px, transparent 2px),
+      radial-gradient(circle, var(--accent) 2px, transparent 2px),
+      radial-gradient(circle, var(--highlight) 2px, transparent 2px),
+      radial-gradient(circle, var(--pink) 1.5px, transparent 1.5px);
+    background-size: 60px 60px, 80px 80px, 100px 70px, 50px 90px, 70px 50px;
+    background-position: 10px 10px, 30px 40px, 50px 20px, 15px 60px, 45px 50px;
+    opacity: 0.18;
+    pointer-events: none;
+  }
+
+  /* Washi tape effect */
+  .washi {
+    display: block;
+    height: 22px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--highlight) 0px,
+      var(--highlight) 20px,
+      var(--primary) 20px,
+      var(--primary) 40px
+    );
+    opacity: 0.7;
+    border-radius: 2px;
+    transform: rotate(-1deg);
+    margin: 0.5rem 0;
+  }
+  .washi.blue {
+    background: repeating-linear-gradient(
+      90deg,
+      var(--secondary) 0px, var(--secondary) 20px,
+      #BAE6FD 20px, #BAE6FD 40px
+    );
+  }
+  .washi.green {
+    background: repeating-linear-gradient(
+      90deg,
+      var(--accent) 0px, var(--accent) 15px,
+      #D9F99D 15px, #D9F99D 30px
+    );
+    transform: rotate(1deg);
+  }
+
+  /* Stars SVG inline */
+  .star-deco {
+    display: inline-block;
+    font-size: 1.5rem;
+    animation: spin-slow 8s linear infinite;
+  }
+  @keyframes spin-slow { to { transform: rotate(360deg); } }
+
+  /* Tape strip (scotch tape) */
+  .tape {
+    display: inline-block;
+    width: 60px;
+    height: 18px;
+    background: rgba(250,204,21,0.45);
+    border-radius: 3px;
+    transform: rotate(-8deg);
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    margin-left: -30px;
+  }
+
+  /* ══════════════════════ COLLAGE TITLE ══════════════════════ */
+  .collage-title {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+    line-height: 1;
+  }
+  .collage-letter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2.2rem, 12vw, 5rem);
+    width: clamp(40px, 11vw, 80px);
+    height: clamp(40px, 11vw, 80px);
+    border-radius: 6px;
+    transform-origin: center;
+    box-shadow: 2px 3px 0 rgba(0,0,0,0.15);
+    color: white;
+    border: 2px solid rgba(0,0,0,0.1);
+  }
+  .cl-0 { background: var(--primary); transform: rotate(-3deg); }
+  .cl-1 { background: var(--secondary); transform: rotate(2deg); }
+  .cl-2 { background: var(--accent); color: var(--dark); transform: rotate(-1deg); }
+  .cl-3 { background: var(--highlight); color: var(--dark); transform: rotate(4deg); }
+  .cl-4 { background: var(--pink); transform: rotate(-2deg); }
+  .cl-5 { background: var(--purple); transform: rotate(3deg); }
+  .cl-6 { background: var(--red); transform: rotate(-4deg); }
+  .cl-7 { background: var(--teal); transform: rotate(1deg); }
+
+  /* ══════════════════════ HERO ══════════════════════ */
+  .hero {
+    min-height: calc(100vh - 56px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.25rem 3rem;
+    position: relative;
+    background: #FFFBF0;
+    text-align: center;
+    gap: 1.5rem;
+  }
+
+  .hero-exclamation {
+    font-family: 'Caveat', cursive;
+    font-size: clamp(1rem, 5vw, 1.4rem);
+    color: var(--secondary);
+    letter-spacing: 2px;
+    font-weight: 700;
+    background: rgba(14,165,233,0.1);
+    padding: 0.3rem 1rem;
+    border-radius: 20px;
+    border: 2px dashed var(--secondary);
+  }
+
+  .hero-sub {
+    font-family: 'Caveat', cursive;
+    font-size: clamp(1.1rem, 5vw, 1.5rem);
+    color: var(--dark);
+    max-width: 340px;
+    line-height: 1.5;
+  }
+
+  /* Floating decorations */
+  .float-star {
+    position: absolute;
+    font-size: 1.8rem;
+    animation: float 4s ease-in-out infinite;
+    pointer-events: none;
+    user-select: none;
+  }
+  .float-star:nth-child(1) { top: 15%; left: 8%; animation-delay: 0s; }
+  .float-star:nth-child(2) { top: 20%; right: 10%; animation-delay: 1s; }
+  .float-star:nth-child(3) { bottom: 25%; left: 6%; animation-delay: 0.5s; }
+  .float-star:nth-child(4) { bottom: 30%; right: 8%; animation-delay: 1.5s; }
+  .float-star:nth-child(5) { top: 60%; left: 15%; animation-delay: 2s; font-size: 1.2rem; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-12px) rotate(10deg); }
+  }
+
+  /* ══════════════════════ BUTTONS ══════════════════════ */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.9rem 1.8rem;
+    border-radius: 50px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 3px 4px 0 rgba(0,0,0,0.2);
+    transition: transform 0.15s, box-shadow 0.15s;
+    min-height: 52px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 2px 0 rgba(0,0,0,0.2);
+  }
+  .btn:hover { background: #EA6A0A; }
+  .btn-blue { background: var(--secondary); }
+  .btn-blue:hover { background: #0284C7; }
+  .btn-green { background: var(--accent); color: var(--dark); }
+
+  /* ══════════════════════ SECTION HEADERS ══════════════════════ */
+  .section-title {
+    font-family: 'Caveat', cursive;
+    font-size: clamp(1.8rem, 8vw, 2.8rem);
+    font-weight: 700;
+    color: var(--dark);
+    position: relative;
+    display: inline-block;
+    margin-bottom: 0.25rem;
+  }
+  .section-title::after {
+    content: '';
+    display: block;
+    height: 5px;
+    background: var(--primary);
+    border-radius: 3px;
+    margin-top: 4px;
+    transform: rotate(-1deg);
+  }
+
+  .section-wrap {
+    padding: 3rem 1.25rem;
+    position: relative;
+  }
+  .section-wrap.alt { background: #FFF7ED; }
+  .section-wrap.blue-tint { background: #F0F9FF; }
+
+  /* ══════════════════════ STORY SECTION ══════════════════════ */
+  .story-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    position: relative;
+    box-shadow: 4px 5px 0 rgba(0,0,0,0.08);
+    border: 2px solid #E5E7EB;
+    margin-top: 1.5rem;
+    transform: rotate(-0.5deg);
+  }
+  .story-card p {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #374151;
+  }
+
+  /* ══════════════════════ EVENT CARDS ══════════════════════ */
+  .events-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+  }
+
+  .event-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.25rem;
+    position: relative;
+    box-shadow: 4px 5px 0 rgba(0,0,0,0.1);
+    border: 2px solid #E5E7EB;
+    cursor: pointer;
+    transition: transform 0.2s;
+    overflow: hidden;
+  }
+  .event-card:hover { transform: translateY(-3px); }
+  .event-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 6px; height: 100%;
+    background: var(--primary);
+    border-radius: 3px 0 0 3px;
+  }
+  .event-card.past::before { background: var(--secondary); }
+
+  .event-card-date {
+    font-family: 'Caveat', cursive;
+    font-size: 0.95rem;
+    color: var(--primary);
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+  }
+  .event-card.past .event-card-date { color: var(--secondary); }
+  .event-card-title {
+    font-weight: 800;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--dark);
+  }
+  .event-card-desc {
+    font-size: 0.92rem;
+    color: #6B7280;
+    line-height: 1.5;
+  }
+  .event-badge {
+    display: inline-block;
+    padding: 0.2rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-top: 0.75rem;
+  }
+  .badge-past { background: #DBEAFE; color: var(--secondary); }
+  .badge-future { background: #FEF3C7; color: #92400E; }
+
+  /* ══════════════════════ TIMELINE ══════════════════════ */
+  .timeline {
+    position: relative;
+    padding: 1rem 0;
+    margin-top: 1.5rem;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, var(--primary), var(--secondary), var(--accent));
+    border-radius: 3px;
+  }
+
+  .timeline-item {
+    padding-left: 55px;
+    margin-bottom: 2rem;
+    position: relative;
+  }
+  .timeline-dot {
+    position: absolute;
+    left: 9px;
+    top: 12px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--primary);
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    z-index: 1;
+  }
+  .timeline-item:nth-child(2) .timeline-dot { background: var(--secondary); box-shadow: 0 0 0 2px var(--secondary); }
+  .timeline-item:nth-child(3) .timeline-dot { background: var(--accent); color: var(--dark); box-shadow: 0 0 0 2px var(--accent); }
+  .timeline-item:nth-child(4) .timeline-dot { background: var(--highlight); color: var(--dark); box-shadow: 0 0 0 2px var(--highlight); }
+  .timeline-item:nth-child(5) .timeline-dot { background: var(--pink); box-shadow: 0 0 0 2px var(--pink); }
+
+  .timeline-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.25rem;
+    box-shadow: 3px 4px 0 rgba(0,0,0,0.08);
+    border: 2px solid #E5E7EB;
+    position: relative;
+  }
+  .timeline-card::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 14px;
+    border: 8px solid transparent;
+    border-right-color: #E5E7EB;
+  }
+  .timeline-card::after {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 16px;
+    border: 6px solid transparent;
+    border-right-color: white;
+  }
+
+  .timeline-date {
+    font-family: 'Caveat', cursive;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+  }
+  .timeline-item:nth-child(2) .timeline-date { color: var(--secondary); }
+  .timeline-item:nth-child(3) .timeline-date { color: var(--accent); }
+  .timeline-item:nth-child(4) .timeline-date { color: #D97706; }
+
+  .timeline-text {
+    font-size: 0.97rem;
+    line-height: 1.6;
+    color: #374151;
+  }
+  .timeline-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.3rem;
+  }
+
+  @media (min-width: 640px) {
+    .timeline::before { left: 50%; margin-left: -1.5px; }
+    .timeline-item { padding-left: 0; width: 48%; }
+    .timeline-item:nth-child(odd) { margin-left: 0; }
+    .timeline-item:nth-child(even) { margin-left: 52%; }
+    .timeline-item:nth-child(even) .timeline-dot { left: -15px; right: auto; }
+    .timeline-item:nth-child(odd) .timeline-dot { left: auto; right: -15px; }
+    .timeline-dot { left: auto; right: -15px; top: 14px; }
+    .timeline-item { padding-bottom: 0.5rem; }
+  }
+
+  /* ══════════════════════ PASSIONI ══════════════════════ */
+  .passion-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  @media (min-width: 480px) {
+    .passion-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .passion-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.25rem 0.75rem;
+    text-align: center;
+    box-shadow: 3px 4px 0 rgba(0,0,0,0.08);
+    border: 2px solid #E5E7EB;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    transition: transform 0.2s;
+  }
+  .passion-card:nth-child(odd) { transform: rotate(-1.5deg); }
+  .passion-card:nth-child(even) { transform: rotate(1.5deg); }
+  .passion-card:hover { transform: scale(1.05) rotate(0deg); }
+
+  .passion-emoji { font-size: 2.5rem; }
+  .passion-label {
+    font-family: 'Caveat', cursive;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--dark);
+    line-height: 1.3;
+    text-align: center;
+  }
+
+  .passion-card:nth-child(1) { background: #FEF3C7; }
+  .passion-card:nth-child(2) { background: #DBEAFE; }
+  .passion-card:nth-child(3) { background: #DCFCE7; }
+  .passion-card:nth-child(4) { background: #FCE7F3; }
+  .passion-card:nth-child(5) { background: #F3E8FF; }
+  .passion-card:nth-child(6) { background: #FEF9C3; }
+  .passion-card:nth-child(7) { background: #CCFBF1; }
+  .passion-card:nth-child(8) { background: #FFE4E6; }
+  .passion-card:nth-child(9) { background: #FEF3C7; }
+
+  .passion-quote {
+    background: var(--dark);
+    color: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    position: relative;
+    font-family: 'Caveat', cursive;
+    font-size: 1.3rem;
+    line-height: 1.6;
+    transform: rotate(-0.5deg);
+  }
+  .passion-quote::before {
+    content: '✨';
+    position: absolute;
+    top: -18px;
+    left: 20px;
+    font-size: 2rem;
+  }
+
+  /* Polaroid */
+  .polaroid-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin: 1.5rem 0;
+  }
+  .polaroid {
+    background: white;
+    padding: 0.75rem 0.75rem 2.5rem;
+    box-shadow: 3px 5px 15px rgba(0,0,0,0.12);
+    border-radius: 4px;
+    width: 140px;
+    text-align: center;
+    position: relative;
+  }
+  .polaroid:nth-child(1) { transform: rotate(-4deg); }
+  .polaroid:nth-child(2) { transform: rotate(3deg); }
+  .polaroid:nth-child(3) { transform: rotate(-2deg); }
+  .polaroid img, .polaroid .polaroid-img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 2px;
+    display: block;
+  }
+  .polaroid-img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    background: var(--light);
+    aspect-ratio: 1;
+  }
+  .polaroid-caption {
+    position: absolute;
+    bottom: 0.4rem;
+    left: 0; right: 0;
+    font-family: 'Caveat', cursive;
+    font-size: 0.9rem;
+    color: #374151;
+    padding: 0 0.5rem;
+  }
+
+  /* ══════════════════════ EVENTI PAGE ══════════════════════ */
+  .events-section-title {
+    font-family: 'Caveat', cursive;
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .gallery-placeholder {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-top: 0.75rem;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .gallery-cell {
+    aspect-ratio: 1;
+    background: var(--light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #CBD5E1;
+    border: 1px dashed #CBD5E1;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .gallery-cell:hover { background: #E2E8F0; }
+
+  /* ══════════════════════ FORM ══════════════════════ */
+  .form-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 2000;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+  }
+  .form-overlay.open { display: flex; }
+
+  .form-sheet {
+    background: white;
+    width: 100%;
+    max-width: 540px;
+    border-radius: 28px 28px 0 0;
+    padding: 2rem 1.5rem 3rem;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.35s cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+  .form-handle {
+    width: 40px;
+    height: 4px;
+    background: #CBD5E1;
+    border-radius: 4px;
+    margin: 0 auto 1.5rem;
+  }
+
+  .form-title {
+    font-family: 'Caveat', cursive;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: var(--dark);
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+  .form-group label {
+    display: block;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+    color: var(--dark);
+  }
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 2px solid #E5E7EB;
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    color: var(--dark);
+    outline: none;
+    transition: border-color 0.2s;
+    background: var(--light);
+  }
+  .form-group input:focus,
+  .form-group textarea:focus { border-color: var(--primary); }
+  .form-group textarea { resize: vertical; min-height: 100px; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  /* ══════════════════════ FOOTER ══════════════════════ */
+  footer {
+    background: var(--dark);
+    color: white;
+    padding: 2.5rem 1.25rem;
+    text-align: center;
+  }
+  .footer-logo {
+    font-family: 'Caveat', cursive;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--highlight);
+    margin-bottom: 1rem;
+  }
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .footer-links a {
+    color: #9CA3AF;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--highlight); }
+  .footer-quote {
+    font-family: 'Caveat', cursive;
+    font-size: 1.1rem;
+    color: #6B7280;
+    margin-bottom: 1.5rem;
+  }
+  .social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+  .social-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #1F2937;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9CA3AF;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    text-decoration: none;
+  }
+  .social-icon:hover { background: var(--primary); color: white; }
+
+  /* ══════════════════════ TOAST ══════════════════════ */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--accent);
+    color: var(--dark);
+    padding: 1rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    transition: transform 0.4s cubic-bezier(.4,0,.2,1);
+    z-index: 3000;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ══════════════════════ UTILITIES ══════════════════════ */
+  .mt-1 { margin-top: 0.5rem; }
+  .mt-2 { margin-top: 1rem; }
+  .mt-3 { margin-top: 1.5rem; }
+  .text-center { text-align: center; }
+  .flex-center { display: flex; align-items: center; justify-content: center; }
+
+  /* Responsive desktop */
+  @media (min-width: 768px) {
+    .events-grid { display: grid; grid-template-columns: 1fr 1fr; }
+    .section-wrap { padding: 4rem 2rem; max-width: 860px; margin: 0 auto; }
+    .hero { gap: 2rem; }
+  }
+  @media (min-width: 1024px) {
+    .section-wrap { max-width: 980px; }
+    .passion-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo" onclick="showPage('home')">marameo! ✨</a>
+  <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="nav-menu" id="navMenu">
+    <a href="#" class="nav-link active" onclick="showPage('home'); closeMenu()">🏠 Home</a>
+    <a href="#" class="nav-link" onclick="showPage('about'); closeMenu()">👩‍🎓 Chi sono</a>
+    <a href="#" class="nav-link" onclick="showPage('passions'); closeMenu()">💛 Passioni</a>
+    <a href="#" class="nav-link" onclick="showPage('events'); closeMenu()">🎉 Eventi</a>
+  </div>
+</nav>
+
+<!-- ════════════════════════════════ PAGE: HOME ════════════════════════════════ -->
+<div id="page-home" class="page active">
+
+  <!-- HERO -->
+  <section class="hero confetti-bg paper-texture">
+    <!-- floating stars -->
+    <span class="float-star">⭐</span>
+    <span class="float-star">✨</span>
+    <span class="float-star">🌟</span>
+    <span class="float-star">💫</span>
+    <span class="float-star">⭐</span>
+
+    <div class="hero-exclamation">✏️ benvenuta nel mio angolino creativo</div>
+
+    <!-- Collage title -->
+    <div class="collage-title" aria-label="marameo!">
+      <span class="collage-letter cl-0">m</span>
+      <span class="collage-letter cl-1">a</span>
+      <span class="collage-letter cl-2">r</span>
+      <span class="collage-letter cl-3">a</span>
+      <span class="collage-letter cl-4">m</span>
+      <span class="collage-letter cl-5">e</span>
+      <span class="collage-letter cl-6">o</span>
+      <span class="collage-letter cl-7">!</span>
+    </div>
+
+    <p class="hero-sub">sono Martina — studentessa, creatrice di cose belle e amante del mondo 🌈</p>
+
+    <button class="btn" onclick="showPage('about')">Scopri tutta la mia storia →</button>
+  </section>
+
+  <!-- STORIA BREVE -->
+  <section class="section-wrap alt">
+    <div>
+      <span class="washi"></span>
+    </div>
+    <h2 class="section-title">✏️ La mia storia</h2>
+    <div class="story-card paper-texture">
+      <div class="tape"></div>
+      <p>Sono nata il 1° luglio 2001 a Desio, cresciuta tra il lago di Lecco e la città di Lissone. Fin da subito creativa e sportiva, ho sempre creduto nella magia delle parole e dei colori.</p>
+      <br>
+      <p>Nel luglio 2024 mi sono laureata in Lettere Moderne con una tesi sul <em>"Giornalino di Gian Burrasca"</em>, scrivendo come ultima parola: <strong>Marameo!</strong> Ed è diventato il mio grido di battaglia 🎓✨</p>
+    </div>
+    <div class="mt-3 text-center">
+      <button class="btn" onclick="showPage('about')">📖 Scopri tutta la mia storia</button>
+    </div>
+  </section>
+
+  <!-- EVENTI PREVIEW -->
+  <section class="section-wrap blue-tint">
+    <span class="washi blue"></span>
+    <h2 class="section-title">🎉 Gli eventi</h2>
+    <div class="events-grid mt-2">
+
+      <div class="event-card past" onclick="showPage('events')">
+        <div class="event-card-date">📅 Luglio 2024</div>
+        <div class="event-card-title">Festa di Laurea 🎓</div>
+        <div class="event-card-desc">Una festa scrapbooking per celebrare la fine di un capitolo e l'inizio di uno nuovo!</div>
+        <span class="event-badge badge-past">📷 Passato</span>
+      </div>
+
+      <div class="event-card past" onclick="showPage('events')">
+        <div class="event-card-date">📅 Dicembre 2024</div>
+        <div class="event-card-title">Workshop Creatività 🎨</div>
+        <div class="event-card-desc">Laboratorio di scrapbooking e collage con amici e bambini del quartiere.</div>
+        <span class="event-badge badge-past">📷 Passato</span>
+      </div>
+
+      <div class="event-card" onclick="showPage('events')">
+        <div class="event-card-date">📅 Aprile 2025</div>
+        <div class="event-card-title">Primavera Creativa 🌸</div>
+        <div class="event-card-desc">Un pomeriggio di laboratori creativi, musica e stare insieme all'aria aperta!</div>
+        <span class="event-badge badge-future">🎟️ Prossimamente</span>
+      </div>
+
+      <div class="event-card" onclick="showPage('events')">
+        <div class="event-card-date">📅 Estate 2025</div>
+        <div class="event-card-title">Gita al Lago 🏖️</div>
+        <div class="event-card-desc">Un weekend tra il lago di Lecco e le montagne, per ricaricarsi di bellezza!</div>
+        <span class="event-badge badge-future">🎟️ Prossimamente</span>
+      </div>
+
+    </div>
+    <div class="mt-3 text-center">
+      <button class="btn btn-blue" onclick="showPage('events')">Vedi tutti gli eventi →</button>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">marameo! ✨</div>
+    <div class="footer-links">
+      <a href="#" onclick="showPage('home')">Home</a>
+      <a href="#" onclick="showPage('about')">Chi sono</a>
+      <a href="#" onclick="showPage('passions')">Passioni</a>
+      <a href="#" onclick="showPage('events')">Eventi</a>
+    </div>
+    <div class="footer-quote">✨ "Ogni giorno è una pagina bianca da riempire di colori" ✨</div>
+    <div class="social-icons">
+      <a class="social-icon" href="#" aria-label="Instagram">📸</a>
+      <a class="social-icon" href="#" aria-label="TikTok">🎵</a>
+      <a class="social-icon" href="#" aria-label="Pinterest">📌</a>
+    </div>
+  </footer>
+</div>
+
+<!-- ════════════════════════════════ PAGE: CHI SONO ════════════════════════════════ -->
+<div id="page-about" class="page">
+  <section class="section-wrap">
+    <span class="washi"></span>
+    <h1 class="section-title">📖 Chi sono</h1>
+    <p style="font-family:'Caveat',cursive; font-size:1.2rem; color:#6B7280; margin-top:0.5rem;">La mia storia, un passo alla volta 🌟</p>
+
+    <div class="timeline">
+
+      <div class="timeline-item">
+        <div class="timeline-dot">👶</div>
+        <div class="timeline-card">
+          <div class="timeline-icon">👶🌟</div>
+          <div class="timeline-date">1 luglio 2001</div>
+          <div class="timeline-text">
+            <strong>Nasco a Desio (MB)</strong><br>
+            Cresco tra il lago di Lecco e la città di Lissone. Fin da subito sono una bambina creativa e faccio tanto sport.
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot">🎓</div>
+        <div class="timeline-card">
+          <div class="timeline-icon">📚✏️</div>
+          <div class="timeline-date">2019</div>
+          <div class="timeline-text">
+            <strong>Diploma in Scienze Umane</strong><br>
+            Mi diplomo e decido che la mia strada sarà <em>l'insegnamento</em>. Le parole e le persone sono la mia vocazione.
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot">🏛️</div>
+        <div class="timeline-card">
+          <div class="timeline-icon">🏛️📖</div>
+          <div class="timeline-date">2020</div>
+          <div class="timeline-text">
+            <strong>Università degli Studi di Milano</strong><br>
+            Inizio la facoltà di Lettere Moderne alla Statale di Milano. Un nuovo capitolo emozionante!
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot">⭐</div>
+        <div class="timeline-card">
+          <div class="timeline-icon">🎓✨</div>
+          <div class="timeline-date">14 luglio 2024</div>
+          <div class="timeline-text">
+            <strong>Laurea Triennale in Lettere Moderne</strong><br>
+            Tesi sul <em>"Giornalino di Gian Burrasca"</em>. Come ultima frase scrivo: <strong>"Marameo!"</strong> — e diventa il mio grido di gioia e libertà 🎉
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot">🚀</div>
+        <div class="timeline-card">
+          <div class="timeline-icon">🚀💫</div>
+          <div class="timeline-date">2024 – oggi</div>
+          <div class="timeline-text">
+            <strong>Magistrale in Lettere Moderne</strong><br>
+            Continuo il mio percorso accademico, sempre con la stessa curiosità, creatività e voglia di fare!
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-logo">marameo! ✨</div>
+    <div class="footer-links">
+      <a href="#" onclick="showPage('home')">Home</a>
+      <a href="#" onclick="showPage('about')">Chi sono</a>
+      <a href="#" onclick="showPage('passions')">Passioni</a>
+      <a href="#" onclick="showPage('events')">Eventi</a>
+    </div>
+    <div class="footer-quote">✨ "Ogni giorno è una pagina bianca da riempire di colori" ✨</div>
+    <div class="social-icons">
+      <a class="social-icon" href="#" aria-label="Instagram">📸</a>
+      <a class="social-icon" href="#" aria-label="TikTok">🎵</a>
+      <a class="social-icon" href="#" aria-label="Pinterest">📌</a>
+    </div>
+  </footer>
+</div>
+
+<!-- ════════════════════════════════ PAGE: PASSIONI ════════════════════════════════ -->
+<div id="page-passions" class="page">
+  <section class="section-wrap confetti-bg">
+    <span class="washi green"></span>
+    <h1 class="section-title">💛 Le mie passioni</h1>
+
+    <div class="passion-quote">
+      "Amo fare scrapbooking, organizzare feste, unire persone diverse tra loro. Amo i colori, i lavoretti, stare a contatto con i bambini... e le mucche 🐄!"
+    </div>
+
+    <div class="passion-grid">
+      <div class="passion-card">
+        <span class="passion-emoji">✂️</span>
+        <span class="passion-label">Scrapbooking</span>
+      </div>
+      <div class="passion-card">
+        <span class="passion-emoji">🎉</span>
+        <span class="passion-label">Organizzare feste</span>
+      </div>
+      <div class="passion-card">
+        <span class="passion-emoji">🌈</span>
+        <span class="passion-label">I colori</span>
+      </div>
+      <div class="passion-card">
+        <span class="passion-emoji">🧒</span>
+        <span class="passion-label">Bambini</span>
+      </div>
+      <div class="passion-card">
+        <span class="passion-emoji">🐄</span>
+        <span class="passion-label">Le mucche!</span>
+      </div>
+      <div class="passion-card">
+        <span class="passion-emoji">🍝</span>
+        <span class="passion-label">Mangiare bene</span>
+      </div>
+      <div class="passion-card">
+        <span class="passion-emoji">📚</span>
+        <span class="passion-label">Albi illustrati</span>
+      </div>
+      <div class="passion-card">
+        <span class="passion-emoji">🐱</span>
+        <span class="passion-label">Sofi & Lola</span>
+      </div>
+      <div class="passion-card">
+        <span class="passion-emoji">🎨</span>
+        <span class="passion-label">Lavoretti creativi</span>
+      </div>
+    </div>
+
+    <div class="polaroid-wrap mt-3">
+      <div class="polaroid">
+        <div class="polaroid-img">✂️</div>
+        <div class="polaroid-caption">scrapbooking</div>
+      </div>
+      <div class="polaroid">
+        <div class="polaroid-img">🐱</div>
+        <div class="polaroid-caption">Sofi & Lola</div>
+      </div>
+      <div class="polaroid">
+        <div class="polaroid-img">🐄</div>
+        <div class="polaroid-caption">Le mucche!</div>
+      </div>
+    </div>
+
+    <span class="washi" style="transform:rotate(1deg);margin-top:1rem;"></span>
+
+    <div class="story-card mt-2" style="transform:rotate(0.5deg)">
+      <div class="tape" style="background:rgba(132,204,22,0.4)"></div>
+      <p style="font-family:'Caveat',cursive; font-size:1.15rem; line-height:1.7">
+        📚 Amo particolarmente i <strong>libri per bambini</strong> e gli albi illustrati — perché la semplicità nasconde sempre la più grande profondità. E i miei due gatti <strong>Sofi e Lola</strong> sono i miei compagni di scrapbooking preferiti! 🐱🐱
+      </p>
+    </div>
+
+  </section>
+
+  <footer>
+    <div class="footer-logo">marameo! ✨</div>
+    <div class="footer-links">
+      <a href="#" onclick="showPage('home')">Home</a>
+      <a href="#" onclick="showPage('about')">Chi sono</a>
+      <a href="#" onclick="showPage('passions')">Passioni</a>
+      <a href="#" onclick="showPage('events')">Eventi</a>
+    </div>
+    <div class="footer-quote">✨ "Ogni giorno è una pagina bianca da riempire di colori" ✨</div>
+    <div class="social-icons">
+      <a class="social-icon" href="#" aria-label="Instagram">📸</a>
+      <a class="social-icon" href="#" aria-label="TikTok">🎵</a>
+      <a class="social-icon" href="#" aria-label="Pinterest">📌</a>
+    </div>
+  </footer>
+</div>
+
+<!-- ════════════════════════════════ PAGE: EVENTI ════════════════════════════════ -->
+<div id="page-events" class="page">
+  <section class="section-wrap">
+    <span class="washi"></span>
+    <h1 class="section-title">🎉 Gli eventi</h1>
+
+    <!-- FUTURI -->
+    <div class="mt-3">
+      <div class="events-section-title">
+        <span style="background:var(--primary);color:white;padding:0.3rem 0.8rem;border-radius:20px;font-size:1rem;">🎟️ Prossimamente</span>
+      </div>
+
+      <div class="event-card" style="margin-bottom:1.25rem">
+        <div class="event-card-date">📅 Aprile 2025</div>
+        <div class="event-card-title">🌸 Primavera Creativa</div>
+        <div class="event-card-desc">Un pomeriggio all'aria aperta per fare lavoretti creativi, conoscere persone nuove e godersi la primavera. Porta un materiale da riciclare!</div>
+        <div class="mt-2">
+          <button class="btn" onclick="openForm('Primavera Creativa')">🎟️ Partecipa!</button>
+        </div>
+      </div>
+
+      <div class="event-card" style="margin-bottom:1.25rem">
+        <div class="event-card-date">📅 Estate 2025</div>
+        <div class="event-card-title">🏖️ Gita al Lago di Lecco</div>
+        <div class="event-card-desc">Un weekend tra le montagne e il lago. Picnic, polaroid, quaderni da colorare, giri in barca e tanti ricordi da incollare nel proprio scrapbook!</div>
+        <div class="mt-2">
+          <button class="btn" onclick="openForm('Gita al Lago di Lecco')">🎟️ Partecipa!</button>
+        </div>
+      </div>
+
+      <div class="event-card" style="margin-bottom:1.25rem">
+        <div class="event-card-date">📅 Autunno 2025</div>
+        <div class="event-card-title">📚 Book Club Illustrati</div>
+        <div class="event-card-desc">Primo incontro del book club dedicato agli albi illustrati e libri per l'infanzia. Ogni mese un libro, ogni mese una scoperta!</div>
+        <div class="mt-2">
+          <button class="btn" onclick="openForm('Book Club Illustrati')">🎟️ Partecipa!</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASSATI -->
+    <div class="mt-3">
+      <div class="events-section-title">
+        <span style="background:var(--secondary);color:white;padding:0.3rem 0.8rem;border-radius:20px;font-size:1rem;">📷 Passati</span>
+      </div>
+
+      <div class="event-card past" style="margin-bottom:1.25rem">
+        <div class="event-card-date">📅 Dicembre 2024</div>
+        <div class="event-card-title">🎨 Workshop Creatività</div>
+        <div class="event-card-desc">Laboratorio di scrapbooking e collage con bambini e adulti. Tante card fatte a mano, washi tape e glitter!</div>
+        <div class="gallery-placeholder mt-2">
+          <div class="gallery-cell">📷</div>
+          <div class="gallery-cell">📷</div>
+          <div class="gallery-cell">📷</div>
+          <div class="gallery-cell">📷</div>
+          <div class="gallery-cell">📷</div>
+          <div class="gallery-cell">+</div>
+        </div>
+        <span class="event-badge badge-past">📷 Galleria foto</span>
+      </div>
+
+      <div class="event-card past" style="margin-bottom:1.25rem">
+        <div class="event-card-date">📅 Luglio 2024</div>
+        <div class="event-card-title">🎓 Festa di Laurea</div>
+        <div class="event-card-desc">Una festa speciale per celebrare la laurea triennale. Decorazioni scrapbooking, torta coloratissima e tanti amici e familiari.</div>
+        <div class="gallery-placeholder mt-2">
+          <div class="gallery-cell">📷</div>
+          <div class="gallery-cell">📷</div>
+          <div class="gallery-cell">📷</div>
+          <div class="gallery-cell">📷</div>
+          <div class="gallery-cell">📷</div>
+          <div class="gallery-cell">+</div>
+        </div>
+        <span class="event-badge badge-past">📷 Galleria foto</span>
+      </div>
+    </div>
+
+  </section>
+
+  <footer>
+    <div class="footer-logo">marameo! ✨</div>
+    <div class="footer-links">
+      <a href="#" onclick="showPage('home')">Home</a>
+      <a href="#" onclick="showPage('about')">Chi sono</a>
+      <a href="#" onclick="showPage('passions')">Passioni</a>
+      <a href="#" onclick="showPage('events')">Eventi</a>
+    </div>
+    <div class="footer-quote">✨ "Ogni giorno è una pagina bianca da riempire di colori" ✨</div>
+    <div class="social-icons">
+      <a class="social-icon" href="#" aria-label="Instagram">📸</a>
+      <a class="social-icon" href="#" aria-label="TikTok">🎵</a>
+      <a class="social-icon" href="#" aria-label="Pinterest">📌</a>
+    </div>
+  </footer>
+</div>
+
+<!-- ════════════════════ FORM OVERLAY ════════════════════ -->
+<div class="form-overlay" id="formOverlay" onclick="closeFormOutside(event)">
+  <div class="form-sheet">
+    <div class="form-handle"></div>
+    <div class="form-title" id="formTitle">🎟️ Iscriviti all'evento</div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="f-nome">Nome *</label>
+        <input type="text" id="f-nome" placeholder="Il tuo nome">
+      </div>
+      <div class="form-group">
+        <label for="f-cognome">Cognome *</label>
+        <input type="text" id="f-cognome" placeholder="Il tuo cognome">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="f-email">Email *</label>
+      <input type="email" id="f-email" placeholder="tua@email.it">
+    </div>
+
+    <div class="form-group">
+      <label for="f-tel">Numero di telefono</label>
+      <input type="tel" id="f-tel" placeholder="+39 000 0000000">
+    </div>
+
+    <div class="form-group">
+      <label for="f-msg">Messaggio</label>
+      <textarea id="f-msg" placeholder="Scrivimi qualcosa... domande, aspettative, curiosità!"></textarea>
+    </div>
+
+    <button class="btn" style="width:100%;font-size:1.1rem;" onclick="submitForm()">✉️ Invia iscrizione!</button>
+    <button onclick="closeForm()" style="width:100%;margin-top:0.75rem;padding:0.75rem;border:2px solid #E5E7EB;border-radius:50px;background:white;font-family:'Nunito',sans-serif;font-size:1rem;cursor:pointer;color:#6B7280;">Annulla</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✅ Iscrizione inviata! Ti contatterò presto 🌟</div>
+
+<script>
+  // ── PAGE NAVIGATION ──
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    window.scrollTo(0, 0);
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    const map = {home:0, about:1, passions:2, events:3};
+    const links = document.querySelectorAll('.nav-link');
+    if (links[map[id]]) links[map[id]].classList.add('active');
+  }
+
+  // ── HAMBURGER ──
+  function toggleMenu() {
+    const btn = document.getElementById('hamburger');
+    const menu = document.getElementById('navMenu');
+    btn.classList.toggle('open');
+    menu.classList.toggle('open');
+  }
+  function closeMenu() {
+    document.getElementById('hamburger').classList.remove('open');
+    document.getElementById('navMenu').classList.remove('open');
+  }
+
+  // ── FORM ──
+  let currentEvent = '';
+  function openForm(eventName) {
+    currentEvent = eventName;
+    document.getElementById('formTitle').textContent = '🎟️ Iscriviti: ' + eventName;
+    document.getElementById('formOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeForm() {
+    document.getElementById('formOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function closeFormOutside(e) {
+    if (e.target === document.getElementById('formOverlay')) closeForm();
+  }
+  function submitForm() {
+    const nome = document.getElementById('f-nome').value.trim();
+    const email = document.getElementById('f-email').value.trim();
+    if (!nome || !email) {
+      alert('Per favore, compila almeno nome ed email! 💛');
+      return;
+    }
+    closeForm();
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3500);
+    // reset
+    ['f-nome','f-cognome','f-email','f-tel','f-msg'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+  }
+</script>
+</body>
+</html>
